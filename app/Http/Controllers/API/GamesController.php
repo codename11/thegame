@@ -168,7 +168,7 @@ class GamesController extends Controller
             break;
             
             default:
-                $ArmyToAttack = null;
+                $ArmyToAttack = null; 
         }
 
         /*
