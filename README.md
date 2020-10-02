@@ -6,6 +6,7 @@
      - Random(attacks random enemy)
      - Weakest(attacks weakest enemy)
      - Strongest(attacks strongest enemy)
+     - If army doesn't have strategy, a random strategy is applied to it.
 
 ## Technologies used:
  - Ajax

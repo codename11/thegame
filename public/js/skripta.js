@@ -26,7 +26,7 @@ function register(event){
             console.log("success");
             console.log(response);  
 
-            document.getElementById("registered").innerHTML = "<div id='toast3' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>You are now registered!</div></div>";
+            document.getElementById("registered").innerHTML = "<div id='toast3' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Notification</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>You are now registered!</div></div>";
             $('#toast3').toast('show');
             
         },
@@ -62,11 +62,15 @@ function login(event){
 
         success: (response) => { 
 
-            //console.clear();;
             console.log("success");
             console.log(response);  
             token = response.access_token;
             listGames();
+
+            if(response.message==="Invalid Credentials"){
+                document.getElementById("invalidCreds").innerHTML = "<div id='toast4' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Notification</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+response.message+"</div></div>";
+                $('#toast4').toast('show');
+            }
 
         },
         error: (response) => {
@@ -91,7 +95,7 @@ async function createGame(event){
 
     let url = "/api/createGame";
     await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST',
         headers: {
             "Accepts" : "application/json",
             'Content-Type': 'application/json',
@@ -103,10 +107,9 @@ async function createGame(event){
 
         return response.json();
 
-    })// parses JSON response into native JavaScript objects
+    })
     .then((data) => {
 
-        //console.clear();;
         console.log(data);
         forma.elements[0].value = null;
         listGames();
@@ -130,7 +133,7 @@ async function listGames(event){
 
         let url = "/api/listGames";
         await fetch(url, {
-            method: 'GET', // *GET, POST, PUT, DELETE, etc.
+            method: 'GET',
             headers: {
                 "Accepts" : "application/json",
                 'Content-Type': 'application/json',
@@ -141,10 +144,9 @@ async function listGames(event){
 
             return response.json();
 
-        })// parses JSON response into native JavaScript objects
+        })
         .then((data) => {
 
-            //console.clear();;
             console.log(data);
             let games = data.games;
 
@@ -209,7 +211,7 @@ async function commenceBattle(event){
 
     let url = "/api/commenceBattle";
     await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST',
         headers: {
             "Accepts" : "application/json",
             'Content-Type': 'application/json',
@@ -221,15 +223,15 @@ async function commenceBattle(event){
 
         return response.json();
 
-    })// parses JSON response into native JavaScript objects
+    })
     .then((data) => {
-        //console.clear();;
+
         console.log(data);
 
         let message = data.message;
         if(message && message==="There are no armies in this game!"){
             
-            document.getElementById("noArmies").innerHTML = "<div id='toast2' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+"</div></div>";
+            document.getElementById("noArmies").innerHTML = "<div id='toast2' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Notification</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+"</div></div>";
             $('#toast2').toast('show');
             document.getElementById("winner").innerHTML = "";
             
@@ -333,7 +335,7 @@ async function addArmy(event){
 
     let url = "/api/addArmy";
     await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST',
         headers: {
             "Accepts" : "application/json",
             'Content-Type': 'application/json',
@@ -345,10 +347,9 @@ async function addArmy(event){
 
         return response.json();
 
-    })// parses JSON response into native JavaScript objects
+    })
     .then((data) => {
 
-        //console.clear();;
         console.log(data);
         forma.elements[0].value = gameId;
         forma.elements[1].value = null;
@@ -368,7 +369,7 @@ async function listArmies(){
 
     let url = "/api/listArmies";
     await fetch(url, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        method: 'GET',
         headers: {
             "Accepts" : "application/json",
             'Content-Type': 'application/json',
@@ -379,10 +380,9 @@ async function listArmies(){
 
         return response.json();
 
-    })// parses JSON response into native JavaScript objects
+    })
     .then((data) => {
 
-        //console.clear();;
         console.log(data);
         let armies = data.army;
         let len = armies.length;
@@ -430,7 +430,7 @@ async function setStrategy(event){
    
     let url = "/api/attackStrategy";
     await fetch(url, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST',
         headers: {
             "Accepts" : "application/json",
             'Content-Type': 'application/json',
@@ -442,7 +442,7 @@ async function setStrategy(event){
 
         return response.json();
 
-    })// parses JSON response into native JavaScript objects
+    })
     .then((data) => {
 
         console.log(data);
@@ -463,7 +463,7 @@ async function setStrategy(event){
             newStrategy = "Strongest";
         }
 
-        document.getElementById("strategyApplied").innerHTML = "<div id='toast1' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+newStrategy+"</div></div>";
+        document.getElementById("strategyApplied").innerHTML = "<div id='toast1' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Notification</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+newStrategy+"</div></div>";
         $('#toast1').toast('show');
 
     })
@@ -495,16 +495,13 @@ window.addEventListener("load", () => {
     if(route === "/setupScreen" ){
         
         login();
+        setupScreen();
+        
+        if(token){
 
-        if(token && token.length > 0){
-
-            setupScreen();
             listGames();
             listArmies();
 
-        }
-        else{
-            location.href = "/";
         }
         
     }
@@ -513,13 +510,10 @@ window.addEventListener("load", () => {
         
         login();
         
-        if(token && token.length > 0){
+        if(token){
 
             listGames();
 
-        }
-        else{
-            location.href = "/";
         }
 
     }
