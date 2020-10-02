@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Game;
 use App\Army;
 use App\Pivot;
+use App\Strategy;
 
 class GamesController extends Controller
 {
@@ -91,28 +92,44 @@ class GamesController extends Controller
         }
         else{
 
-            $game = Game::find(intval($request->gameId));
-
+            //$game = Game::find(intval($request->gameId));
+            $game = Game::where("id", "=", $request->gameId)->with("armies.strategy")->get()[0];
             $ifArmyExists = Army::where("name", "=", $request->armyName)->first();
 
             if($ifArmyExists === null){
 
-                $army = new Army;
-                $army->name = $request->armyName;
-                $army->units = intval($request->unitsNumber);
-                $army->save();
+                //if(count($game->armies) < 2){
 
-                $pivot = new Pivot;
-                $pivot->army_id = $army->id;
-                $pivot->game_id = $game->id;
-                $pivot->save();
-                
-                $response = array(
-                    "message" => "Bravo",
-                    "requestAll" => $request->all(),
-                );
-                
-                return response()->json($response);
+                    $army = new Army;
+                    $army->name = $request->armyName;
+                    $army->units = intval($request->unitsNumber);
+                    $army->save();
+    
+                    $pivot = new Pivot;
+                    $pivot->army_id = $army->id;
+                    $pivot->game_id = $game->id;
+                    $pivot->save();
+                    
+                    $response = array(
+                        "message" => "Bravo",
+                        "requestAll" => $request->all(),
+                        "armyid" => $army->id,
+                        "game" => $game
+                    );
+                    
+                    return response()->json($response);
+
+                /*}
+                else{
+
+                    $response = array(
+                        "message" => "To much armies",
+                        "requestAll" => $request->all(),
+                    );
+
+                    return response()->json($response);
+
+                }*/
 
             }
             else{
@@ -133,101 +150,59 @@ class GamesController extends Controller
     public function attackStrategy(Request $request)
     {
 
-        $armyId = $request->armyId;
-        $strategy = $request->strategy;
+        $validator = Validator::make($request->all(), [ // <---
+            "armyId" => 'required',
+            "strategy" => 'required|integer|between:1,3',
+        ]);
 
-        $minId = Army::min('id');
-        $maxId = Army::max('id');
-
-        $randId = rand($minId,$maxId)!== $armyId ? rand($minId,$maxId) : $maxId;
-        $randArmy = Army::find($randId);
-
-        $ThisArmy = Army::find($armyId);
-
-        $strongestArmy = Army::orderBy('units', 'desc')->where("id", "!=", $armyId)->first();
-        $weakestArmy = Army::orderBy('units', 'asc')->where("id", "!=", $armyId)->first();
-
-        $ArmyToAttack = null;
-        switch($strategy) {
-            case 1:
-              
-                $ArmyToAttack = $randArmy;
-
-            break;
-
-            case 2:
-              
-                $ArmyToAttack = $weakestArmy;
-
-            break;
-
-            case 3:
-              
-                $ArmyToAttack = $strongestArmy;
-
-            break;
+        if($validator->fails()){
+ 
+            $response = array(
+                "Errors: " => $validator->failed(),
+            );
             
-            default:
-                $ArmyToAttack = null; 
+            return response()->json($response); 
+
         }
+        else{
 
-        /*
-        $ThisArmy
-        $ArmyToAttack
-        $attack = rand($ThisArmy->pluck("units"),$ArmyToAttack->pluck("units"));
-        */
+            $tmp1 = Strategy::where("army_id", "=", intval($request->armyId))->first();
+            $newStrategy = null;
+            $armyId = $request->armyId;
+            $strategy = $request->strategy;
+            $message = "";
+            if($tmp1){
 
-        $units1 = $ThisArmy->units;
-        $units2 = $ArmyToAttack->units;
+                $newStrategy = $tmp1;
+                $newStrategy->strategy = intval($strategy);
+                $newStrategy->save();
+                $message = "Strategy is changed to: ";
 
-        $a = $units1;
-        $b = $units2;
-
-        $percent = rand(0, 100);
-        $theWinner = "";
-        while($units1>0 || $units2>0){
-
-            $Army1 = rand(0, $a) / 100;
-            $Army2 = rand(0, $b) / 100;
-
-            if($Army1 > $Army2){
-                $units2 = $units2 > 1 ? $units2-0.5 : $units2-1;
             }
+            else{
 
-            if($Army1 < $Army2){
-                $units1 = $units1 > 1 ? $units1-0.5 : $units1-1;
+                $newStrategy = new Strategy;
+                $newStrategy->army_id = intval($armyId);
+                $newStrategy->strategy = intval($strategy);
+                $newStrategy->save();
+                $message = "New Strategy is added: ";
+
             }
+            
+            $response = array(
+                "message" => $message,
+                "newStrategy" => $newStrategy,
+            );
+            
+            return response()->json($response);
 
         }
-
-        if($units1<=0){
-
-            $theWinner = $ThisArmy->name;
-
-        }
-
-        if($units2<=0){
-
-            $theWinner = $ArmyToAttack->name === $ThisArmy->name ? $ArmyToAttack->name."(copy)" : $ArmyToAttack->name;
-
-        }
-
-        $response = array(
-            "strategy" => $strategy,
-            "AttackingArmy" => $ThisArmy,
-            "ArmyToAttack" => $ArmyToAttack,
-            "Winner" => $theWinner,
-            "units1" => $units1,
-            "units2" => $units2
-        );
-        
-        return response()->json($response);
 
     }
 
     public function listArmies(Request $request)
     {
-        $army = Army::all();
+        $army = Army::with("strategy")->get();
 
         $response = array(
             "army" => $army,
@@ -239,10 +214,133 @@ class GamesController extends Controller
 
     public function listGames(Request $request)
     {
-        $games = Game::with("armies")->get();
-
+        $games = Game::with("armies.strategy")->get();
         $response = array(
             "games" => $games,
+        );
+        
+        return response()->json($response);
+
+    }
+
+    public function commenceBattle(Request $request){
+
+        $game = Game::where("id", "=", $request->gameId)->with("armies.strategy")->get();
+        
+        $armies = $game[0]->armies;
+        $len = count($armies);
+        $units1 = [];
+        for($i=0;$i<$len;$i++){
+
+            $units1[$i] = $armies[$i]->units;
+
+        }
+
+        $strongest = max($units1);
+        $strongInd = null;
+        $weakest = min($units1);
+        $weakInd = null;
+        for($i=0;$i<$len;$i++){
+
+            if($strongest === $armies[$i]->units){
+                $strongInd = $i;
+            }
+
+            if($weakest === $armies[$i]->units){
+                $weakInd = $i;
+            }
+
+        }
+        $randArmy = rand(0, $len-1);
+        for($i=0;$i<$len;$i++){
+
+            //Random: 1
+            if($armies[$i]->strategy->strategy === 1 || $armies[$i]->units > 0){
+
+                while($armies[$i]->units > 0 && $armies[$randArmy]->units > 0){
+
+                    $Army1 = rand(0, $armies[$i]->units) / 100;
+                    $Army2 = rand(0, $armies[$randArmy]->units) / 100;
+    
+                    if($Army1 > $Army2){
+
+                        $armies[$randArmy]->units = $armies[$randArmy]->units > 1 ? $armies[$randArmy]->units-0.5 : $armies[$randArmy]->units-1;
+                    
+                    }
+        
+                    if($Army1 < $Army2){
+
+                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                        
+                    }
+    
+                }
+
+            }
+
+            //Weakest: 2
+            if($armies[$i]->strategy->strategy === 2 && $armies[$i]->units > 0){
+
+                while($armies[$i]->units > 0 && $armies[$weakInd]->units > 0){
+
+                    $Army1 = rand(0, $armies[$i]->units) / 100;
+                    $Army2 = rand(0, $armies[$weakInd]->units) / 100;
+    
+                    if($Army1 > $Army2){
+
+                        $armies[$weakInd]->units = $armies[$weakInd]->units > 1 ? $armies[$weakInd]->units-0.5 : $armies[$weakInd]->units-1;
+                    
+                    }
+        
+                    if($Army1 < $Army2){
+
+                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                        
+                    }
+    
+                }
+
+            }
+
+            //Strongest: 3
+            if($armies[$i]->strategy->strategy === 3 && $armies[$i]->units > 0){
+
+                while($armies[$i]->units > 0 && $armies[$strongInd]->units > 0){
+
+                    $Army1 = rand(0, $armies[$i]->units) / 100;
+                    $Army2 = rand(0, $armies[$strongInd]->units) / 100;
+    
+                    if($Army1 > $Army2){
+
+                        $armies[$strongInd]->units = $armies[$strongInd]->units > 1 ? $armies[$strongInd]->units-0.5 : $armies[$strongInd]->units-1;
+                    
+                    }
+        
+                    if($Army1 < $Army2){
+
+                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                        
+                    }
+    
+                }
+
+            }
+
+        }
+
+        $winner = "";
+        for($i=0;$i<$len;$i++){
+
+            if($armies[$i]->units > 0){
+                $winner .= $armies[$i]->name.",";
+            }
+
+        }
+
+        $response = array(
+            "message" => "Attack",
+            "armies" => $armies,
+            "winner" => $winner
         );
         
         return response()->json($response);

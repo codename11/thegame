@@ -12,7 +12,12 @@ class Game extends Model
 
     public function armies()
     {
-    return $this->belongsToMany("App\Army", 'pivots', 'game_id'/*, 'army_id'*/);
+        return $this->belongsToMany("App\Army", 'pivots', 'game_id'/*, 'army_id'*/);
+    }
+
+    public function strategies()
+    {
+        return $this->hasOneThrough('App\Army', 'App\Strategy');
     }
 
 }

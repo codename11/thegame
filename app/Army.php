@@ -12,7 +12,11 @@ class Army extends Model
 
     public function armies()
     {
-    return $this->belongsToMany("App\Game", 'pivots', 'army_id'/*, 'game_id'*/);
+        return $this->belongsToMany("App\Game", 'pivots', 'army_id'/*, 'game_id'*/);
+    }
+
+    public function strategy(){
+        return $this->hasOne("App\Strategy", 'army_id');
     }
 
 }

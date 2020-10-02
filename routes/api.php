@@ -28,6 +28,9 @@ Route::get('/listGames', "api\GamesController@listGames");
 Route::get('/listArmies', "api\GamesController@listArmies");
 Route::post('/attackStrategy', "api\GamesController@attackStrategy");
 
-//View
+//Views
 Route::get('/setupScreen', "api\GamesController@setupScreen");
 Route::get('/battlefield', "api\GamesController@battlefield");
+
+//Commencing battle
+Route::post('/commenceBattle', "api\GamesController@commenceBattle");

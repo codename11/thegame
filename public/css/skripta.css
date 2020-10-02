@@ -39,3 +39,17 @@
 .m-b-md {
     margin-bottom: 30px;
 }
+
+.myToast{
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    min-width: 300px;
+}
+
+#winner{
+    text-align: center;
+    width: fit-content;
+    padding: 20px;
+    margin: 0 auto;
+}

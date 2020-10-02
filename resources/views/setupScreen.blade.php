@@ -20,16 +20,28 @@
         </form>
     </div>
 
+    <hr/>
+
     <div class="container" id="listGames">
 
     </div>
+
+    <hr/>
 
     <div class="container" id="attackStrategy">
 
     </div>
 
-    <div class="container" id="winner">
+    <hr/>
+
+    <div class="container" id="strategyApplied">
 
     </div>
+
+    <div class="container" id="enoughArmies">
+
+    </div>
+
+    <div id="goToBattlefield"></div>
 
 @endsection
