@@ -107,7 +107,6 @@ async function commenceBattle(event){
     let forma = event.target;
     
     document.getElementById("winner").classList.remove("animate__animated", "animate__heartBeat");
-    document.getElementById("battleSounds").play();
     let gameId = forma.elements[0].value;
 
     let data = {
@@ -131,42 +130,56 @@ async function commenceBattle(event){
         console.clear();
         console.log(data);
 
-        let winner = data.winner.split(",").filter((item, i) => {
-            return item!="";
-        });
-
-        let len = winner.length;
-        document.getElementById("winner").innerHTML = "";
-        document.getElementById("winner").classList.add("animate__animated", "animate__heartBeat");
-        if(len > 1){
-
-            document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We have multiple surviving armies: </h3><br/>";
-
+        let message = data.message;
+        if(message && message==="There are no armies in this game!"){
+            
+            document.getElementById("noArmies").innerHTML = "<div id='toast2' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+"</div></div>";
+            $('#toast2').toast('show');
+            document.getElementById("winner").innerHTML = "";
+            
         }
+        else{
 
-        if(len === 1){
+            document.getElementById("battleSounds").play();
 
-            document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We have a winner army: </h3><br/>";
+            let winner = data.winner.split(",").filter((item, i) => {
+                return item!="";
+            });
 
-        }
+            let len = winner.length;
+            document.getElementById("winner").innerHTML = "";
+            document.getElementById("winner").classList.add("animate__animated", "animate__heartBeat");
+            if(len > 1){
 
-        for(let i=0;i<len;i++){
+                document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We have multiple surviving armies: </h3><br/>";
 
-            document.getElementById("winner").innerHTML += "<span class='alert alert-warning'>"+winner[i]+"</span>";
+            }
 
-            if(i!=len-1){
+            if(len === 1){
 
-                document.getElementById("winner").innerHTML += " with ";
+                document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We have a winner army: </h3><br/>";
+
+            }
+
+            for(let i=0;i<len;i++){
+
+                document.getElementById("winner").innerHTML += "<span class='alert alert-warning'>"+winner[i]+"</span>";
+
+                if(i!=len-1){
+
+                    document.getElementById("winner").innerHTML += " with ";
+                    
+                }
                 
             }
             
-        }
-        
-        setTimeout(() => {
-            document.getElementById("battleSounds").pause();
-            document.getElementById("battleSounds").currentTime = 0;
-        }, 3015);
-        
+            setTimeout(() => {
+                document.getElementById("battleSounds").pause();
+                document.getElementById("battleSounds").currentTime = 0;
+            }, 3015);
+
+        }       
+
     })
     .catch((error) => {
 
@@ -237,14 +250,6 @@ async function addArmy(event){
         forma.elements[1].value = null;
         forma.elements[2].value = null;
         listArmies();
-
-        if(data.message!=="Bravo"){
-
-            let message = data.message;
-            document.getElementById("enoughArmies").innerHTML = "<div id='toast2' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>"+message+"</div></div>";
-            $('#toast2').toast('show');
-
-        }
 
     })
     .catch((error) => {

@@ -14,4 +14,8 @@
       Your browser does not support the audio element.
     </audio>
 
+    <div class="container" id="noArmies">
+
+    </div>
+
 @endsection

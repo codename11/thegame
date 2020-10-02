@@ -229,122 +229,136 @@ class GamesController extends Controller
         
         $armies = $game[0]->armies;
         $len = count($armies);
-        $units1 = [];
-        for($i=0;$i<$len;$i++){
 
-            $units1[$i] = $armies[$i]->units;
-
-        }
-
-        $strongest = max($units1);
-        $strongInd = null;
-        $weakest = min($units1);
-        $weakInd = null;
-        for($i=0;$i<$len;$i++){
-
-            if($strongest === $armies[$i]->units){
-                $strongInd = $i;
-            }
-
-            if($weakest === $armies[$i]->units){
-                $weakInd = $i;
-            }
-
-        }
-        $randArmy = rand(0, $len-1);
-        for($i=0;$i<$len;$i++){
-
-            $ifStrategyExists = $armies[$i]->strategy ? $armies[$i]->strategy->strategy : 1;
-            //Random: 1
-            if($ifStrategyExists === 1 || $armies[$i]->units > 0){
-
-                while($armies[$i]->units > 0 && $armies[$randArmy]->units > 0){
-
-                    $Army1 = rand(0, $armies[$i]->units) / 100;
-                    $Army2 = rand(0, $armies[$randArmy]->units) / 100;
-    
-                    if($Army1 > $Army2){
-
-                        $armies[$randArmy]->units = $armies[$randArmy]->units > 1 ? $armies[$randArmy]->units-0.5 : $armies[$randArmy]->units-1;
-                    
-                    }
+        if($len > 0){
         
-                    if($Army1 < $Army2){
+            $units1 = [];
+            for($i=0;$i<$len;$i++){
 
-                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                $units1[$i] = $armies[$i]->units;
+
+            }
+
+            $strongest = max($units1);
+            $strongInd = null;
+            $weakest = min($units1);
+            $weakInd = null;
+            for($i=0;$i<$len;$i++){
+
+                if($strongest === $armies[$i]->units){
+                    $strongInd = $i;
+                }
+
+                if($weakest === $armies[$i]->units){
+                    $weakInd = $i;
+                }
+
+            }
+            $randArmy = rand(0, $len-1);
+            for($i=0;$i<$len;$i++){
+
+                $ifStrategyExists = $armies[$i]->strategy ? $armies[$i]->strategy->strategy : 1;
+                //Random: 1
+                if($ifStrategyExists === 1 || $armies[$i]->units > 0){
+
+                    while($armies[$i]->units > 0 && $armies[$randArmy]->units > 0){
+
+                        $Army1 = rand(0, $armies[$i]->units) / 100;
+                        $Army2 = rand(0, $armies[$randArmy]->units) / 100;
+        
+                        if($Army1 > $Army2){
+
+                            $armies[$randArmy]->units = $armies[$randArmy]->units > 1 ? $armies[$randArmy]->units-0.5 : $armies[$randArmy]->units-1;
                         
+                        }
+            
+                        if($Army1 < $Army2){
+
+                            $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                            
+                        }
+        
                     }
-    
+
+                }
+
+                //Weakest: 2
+                if($ifStrategyExists === 2 && $armies[$i]->units > 0){
+
+                    while($armies[$i]->units > 0 && $armies[$weakInd]->units > 0){
+
+                        $Army1 = rand(0, $armies[$i]->units) / 100;
+                        $Army2 = rand(0, $armies[$weakInd]->units) / 100;
+        
+                        if($Army1 > $Army2){
+
+                            $armies[$weakInd]->units = $armies[$weakInd]->units > 1 ? $armies[$weakInd]->units-0.5 : $armies[$weakInd]->units-1;
+                        
+                        }
+            
+                        if($Army1 < $Army2){
+
+                            $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                            
+                        }
+        
+                    }
+
+                }
+
+                //Strongest: 3
+                if($ifStrategyExists === 3 && $armies[$i]->units > 0){
+
+                    while($armies[$i]->units > 0 && $armies[$strongInd]->units > 0){
+
+                        $Army1 = rand(0, $armies[$i]->units) / 100;
+                        $Army2 = rand(0, $armies[$strongInd]->units) / 100;
+        
+                        if($Army1 > $Army2){
+
+                            $armies[$strongInd]->units = $armies[$strongInd]->units > 1 ? $armies[$strongInd]->units-0.5 : $armies[$strongInd]->units-1;
+                        
+                        }
+            
+                        if($Army1 < $Army2){
+
+                            $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
+                            
+                        }
+        
+                    }
+
                 }
 
             }
 
-            //Weakest: 2
-            if($ifStrategyExists === 2 && $armies[$i]->units > 0){
+            $winner = "";
+            for($i=0;$i<$len;$i++){
 
-                while($armies[$i]->units > 0 && $armies[$weakInd]->units > 0){
-
-                    $Army1 = rand(0, $armies[$i]->units) / 100;
-                    $Army2 = rand(0, $armies[$weakInd]->units) / 100;
-    
-                    if($Army1 > $Army2){
-
-                        $armies[$weakInd]->units = $armies[$weakInd]->units > 1 ? $armies[$weakInd]->units-0.5 : $armies[$weakInd]->units-1;
-                    
-                    }
-        
-                    if($Army1 < $Army2){
-
-                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
-                        
-                    }
-    
+                if($armies[$i]->units > 0){
+                    $winner .= $armies[$i]->name.",";
                 }
 
             }
 
-            //Strongest: 3
-            if($ifStrategyExists === 3 && $armies[$i]->units > 0){
-
-                while($armies[$i]->units > 0 && $armies[$strongInd]->units > 0){
-
-                    $Army1 = rand(0, $armies[$i]->units) / 100;
-                    $Army2 = rand(0, $armies[$strongInd]->units) / 100;
-    
-                    if($Army1 > $Army2){
-
-                        $armies[$strongInd]->units = $armies[$strongInd]->units > 1 ? $armies[$strongInd]->units-0.5 : $armies[$strongInd]->units-1;
-                    
-                    }
-        
-                    if($Army1 < $Army2){
-
-                        $armies[$i]->units = $armies[$i]->units > 1 ? $armies[$i]->units-0.5 : $armies[$i]->units-1;
-                        
-                    }
-    
-                }
-
-            }
+            $response = array(
+                "message" => "Attack",
+                "armies" => $armies,
+                "winner" => $winner
+            );
+            
+            return response()->json($response);
 
         }
+        else{
 
-        $winner = "";
-        for($i=0;$i<$len;$i++){
-
-            if($armies[$i]->units > 0){
-                $winner .= $armies[$i]->name.",";
-            }
+            $response = array(
+                "message" => "There are no armies in this game!",
+            );
+            
+            return response()->json($response);
 
         }
-
-        $response = array(
-            "message" => "Attack",
-            "armies" => $armies,
-            "winner" => $winner
-        );
-        
-        return response()->json($response);
 
     }
 

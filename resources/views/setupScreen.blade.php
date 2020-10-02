@@ -38,10 +38,6 @@
 
     </div>
 
-    <div class="container" id="enoughArmies">
-
-    </div>
-
     <div id="goToBattlefield"></div>
 
 @endsection
