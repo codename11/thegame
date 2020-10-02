@@ -254,8 +254,9 @@ class GamesController extends Controller
         $randArmy = rand(0, $len-1);
         for($i=0;$i<$len;$i++){
 
+            $ifStrategyExists = $armies[$i]->strategy ? $armies[$i]->strategy->strategy : 1;
             //Random: 1
-            if($armies[$i]->strategy->strategy === 1 || $armies[$i]->units > 0){
+            if($ifStrategyExists === 1 || $armies[$i]->units > 0){
 
                 while($armies[$i]->units > 0 && $armies[$randArmy]->units > 0){
 
@@ -279,7 +280,7 @@ class GamesController extends Controller
             }
 
             //Weakest: 2
-            if($armies[$i]->strategy->strategy === 2 && $armies[$i]->units > 0){
+            if($ifStrategyExists === 2 && $armies[$i]->units > 0){
 
                 while($armies[$i]->units > 0 && $armies[$weakInd]->units > 0){
 
@@ -303,7 +304,7 @@ class GamesController extends Controller
             }
 
             //Strongest: 3
-            if($armies[$i]->strategy->strategy === 3 && $armies[$i]->units > 0){
+            if($ifStrategyExists === 3 && $armies[$i]->units > 0){
 
                 while($armies[$i]->units > 0 && $armies[$strongInd]->units > 0){
 
