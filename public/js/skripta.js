@@ -1,9 +1,90 @@
+let token = null;
+
+function register(event){
+        
+    if(event){
+        event.preventDefault();
+    }
+
+    let url = "/api/register";
+
+    let data = {
+        name: "petar",
+        email: "petrovic@gmail.com",
+        password: "tttttttt",
+        password_confirmation: "tttttttt",
+    };
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: data,
+        dataType: "JSON",
+
+        success: (response) => { 
+
+            console.log("success");
+            console.log(response);  
+
+            document.getElementById("registered").innerHTML = "<div id='toast3' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Strategy</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>You are now registered!</div></div>";
+            $('#toast3').toast('show');
+            
+        },
+        error: (response) => {
+
+            console.log("error");
+            console.log(response);
+            
+        }
+
+    });
+
+}
+
+function login(event){
+
+    if(event){
+        event.preventDefault();
+    }
+
+    let url = "/api/login";
+
+    let data = {
+        email: "petrovic@gmail.com",
+        password: "tttttttt"
+    };
+    
+    $.ajax({
+        url: url,
+        type: "GET",
+        data: data,
+        dataType: "JSON",
+
+        success: (response) => { 
+
+            //console.clear();;
+            console.log("success");
+            console.log(response);  
+            token = response.access_token;
+            listGames();
+
+        },
+        error: (response) => {
+
+            console.log("error");
+            console.log(response);
+            
+        }
+
+    });
+
+}
+
 async function createGame(event){
 
     event.preventDefault();
     let forma = event.target;
-    let token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
-
+ 
     let data = {
         gameName: forma.elements[0].value
     };
@@ -12,7 +93,9 @@ async function createGame(event){
     await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
-          'Content-Type': 'application/json',
+            "Accepts" : "application/json",
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer "+token,
         },
         body: JSON.stringify(data)
      })
@@ -23,6 +106,7 @@ async function createGame(event){
     })// parses JSON response into native JavaScript objects
     .then((data) => {
 
+        //console.clear();;
         console.log(data);
         forma.elements[0].value = null;
         listGames();
@@ -36,48 +120,58 @@ async function createGame(event){
 
 }
 
-async function listGames(){
+async function listGames(event){
 
-    let url = "/api/listGames";
-    await fetch(url, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-            'Content-Type': 'application/json',
-        },
-     })
-    .then((response) => {
+    if(event){
+        event.preventDefault();
+    }
 
-        return response.json();
+    if(token && token.length > 0){
 
-    })// parses JSON response into native JavaScript objects
-    .then((data) => {
+        let url = "/api/listGames";
+        await fetch(url, {
+            method: 'GET', // *GET, POST, PUT, DELETE, etc.
+            headers: {
+                "Accepts" : "application/json",
+                'Content-Type': 'application/json',
+                "Authorization": "Bearer "+token,
+            },
+        })
+        .then((response) => {
 
-        console.log(data);
-        let games = data.games;
-        let len = games.length;
+            return response.json();
 
-        let href = window.location.href;
-        let pos1 = href.lastIndexOf("/");
-        let route = href.substr(pos1);
+        })// parses JSON response into native JavaScript objects
+        .then((data) => {
 
-        if(route === "/setupScreen"){
+            //console.clear();;
+            console.log(data);
+            let games = data.games;
 
-            displayGames(games);
+            let href = window.location.href;
+            let pos1 = href.lastIndexOf("/");
+            let route = href.substr(pos1);
 
-        }
+            if(route === "/setupScreen"){
 
-        if(route === "/battlefield"){
+                displayGames(games);
 
-            goToBattlefield(games);
+            }
 
-        }
-        
-    })
-    .catch((error) => {
+            if(route === "/battlefield"){
+                
+                goToBattlefield(games);
 
-          console.error('Error:', error);
+            }
+            
+        })
+        .catch((error) => {
 
-    });
+            console.error('Error:', error);
+
+        });
+
+    }
 
 }
 
@@ -117,7 +211,9 @@ async function commenceBattle(event){
     await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
-          'Content-Type': 'application/json',
+            "Accepts" : "application/json",
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer "+token,
         },
         body: JSON.stringify(data)
      })
@@ -127,7 +223,7 @@ async function commenceBattle(event){
 
     })// parses JSON response into native JavaScript objects
     .then((data) => {
-        console.clear();
+        //console.clear();;
         console.log(data);
 
         let message = data.message;
@@ -158,6 +254,12 @@ async function commenceBattle(event){
             if(len === 1){
 
                 document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We have a winner army: </h3><br/>";
+
+            }
+
+            if(len === 0){
+
+                document.getElementById("winner").innerHTML = "<h3 class='alert alert-info'>We don't have a winner, it's a draw. </h3><br/>";
 
             }
 
@@ -218,7 +320,6 @@ async function addArmy(event){
 
     event.preventDefault();
     let forma = event.target;
-    let token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
     
     let gameId = forma.elements[0].value;
     let armyName = forma.elements[1].value;
@@ -234,7 +335,9 @@ async function addArmy(event){
     await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
-          'Content-Type': 'application/json',
+            "Accepts" : "application/json",
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer "+token,
         },
         body: JSON.stringify(data)
      })
@@ -245,6 +348,7 @@ async function addArmy(event){
     })// parses JSON response into native JavaScript objects
     .then((data) => {
 
+        //console.clear();;
         console.log(data);
         forma.elements[0].value = gameId;
         forma.elements[1].value = null;
@@ -266,7 +370,9 @@ async function listArmies(){
     await fetch(url, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         headers: {
+            "Accepts" : "application/json",
             'Content-Type': 'application/json',
+            "Authorization": "Bearer "+token,
         },
      })
     .then((response) => {
@@ -276,6 +382,7 @@ async function listArmies(){
     })// parses JSON response into native JavaScript objects
     .then((data) => {
 
+        //console.clear();;
         console.log(data);
         let armies = data.army;
         let len = armies.length;
@@ -296,7 +403,6 @@ async function listArmies(){
 
             html += attackingArmies + strategies + "<div class='form-group'><button type='submit' class='btn btn-outline-primary'>Set Attack Strategy</button></div></form>";
             document.getElementById("attackStrategy").innerHTML = html;
-            document.getElementById("goToBattlefield").innerHTML = "<div class='container'><a type='button' href='/api/battlefield' class='btn btn-outline-danger'>Go to Battlefield</a></div>";
 
         }
 
@@ -326,7 +432,9 @@ async function setStrategy(event){
     await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
-          'Content-Type': 'application/json',
+            "Accepts" : "application/json",
+            'Content-Type': 'application/json',
+            "Authorization": "Bearer "+token,
         },
         body: JSON.stringify(data)
      })
@@ -367,22 +475,52 @@ async function setStrategy(event){
 
 }
 
+function setupScreen(){
+
+    let html ="<div class='container'><h3>setupScreen or <a type='button' href='/api/battlefield' class='btn btn-outline-danger' style='margin-left: 10px;'>Go to Battlefield</a></h3><form onsubmit='createGame(event)'><div class='form-group'><label for='gameName'>Game Name:</label><input type='text' class='form-control' placeholder='Enter name for the Game' name='gameName' id='gameName' required></div><div class='form-group'><button type='submit' class='btn btn-outline-primary'>Create Game</button></div></form></div><hr/><div class='container' id='listGames'></div><hr/><div class='container' id='attackStrategy'></div><hr/><div class='container' id='strategyApplied'></div><div id='goToBattlefield'></div>";
+    document.getElementById("setupScreen").innerHTML = html;
+
+}
+
 window.addEventListener("load", () => {
-    
+
     let href = window.location.href;
     let pos1 = href.lastIndexOf("/");
     let route = href.substr(pos1);
     
-    if(route === "/setupScreen"){
+    /*if(route === "/" ){
+        register();
+    }*/
 
-        listGames();
-        listArmies();
+    if(route === "/setupScreen" ){
+        
+        login();
 
+        if(token && token.length > 0){
+
+            setupScreen();
+            listGames();
+            listArmies();
+
+        }
+        else{
+            location.href = "/";
+        }
+        
     }
 
     if(route === "/battlefield"){
+        
+        login();
+        
+        if(token && token.length > 0){
 
-        listGames();
+            listGames();
+
+        }
+        else{
+            location.href = "/";
+        }
 
     }
     

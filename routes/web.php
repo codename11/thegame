@@ -25,7 +25,7 @@ Route::get('/', function () {
 //Route::get('/setupScreen', "GamesController@setupScreen");
 //Route::get('/battlefield', "GamesController@battlefield");
 
-Auth::routes();
+//Auth::routes();
 
 //Route::get('/home', 'HomeController@index')->name('home');
 

@@ -20,17 +20,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 //Actual routes.
 Route::post('/register', 'api\AuthController@register');
-Route::post('/login', 'api\AuthController@login');
+Route::get('/login', 'api\AuthController@login')->name("login");
 //Ubaciti passport.
-Route::post('/createGame', "api\GamesController@createGame");
-Route::post('/addArmy', "api\GamesController@addArmy");
-Route::get('/listGames', "api\GamesController@listGames");
-Route::get('/listArmies', "api\GamesController@listArmies");
-Route::post('/attackStrategy', "api\GamesController@attackStrategy");
+Route::post('/createGame', "api\GamesController@createGame")->middleware('auth:api');
+Route::post('/addArmy', "api\GamesController@addArmy")->middleware('auth:api');
+Route::get('/listGames', "api\GamesController@listGames")->middleware('auth:api');
+Route::get('/listArmies', "api\GamesController@listArmies")->middleware('auth:api');
+Route::post('/attackStrategy', "api\GamesController@attackStrategy")->middleware('auth:api');
 
 //Views
 Route::get('/setupScreen', "api\GamesController@setupScreen");
 Route::get('/battlefield', "api\GamesController@battlefield");
 
 //Commencing battle
-Route::post('/commenceBattle', "api\GamesController@commenceBattle");
+Route::post('/commenceBattle', "api\GamesController@commenceBattle")->middleware('auth:api');
