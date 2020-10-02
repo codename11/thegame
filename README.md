@@ -26,8 +26,8 @@ Rest of javascript methods are also located there.
  - Modify file at `C:\Windows\System32\drivers\etc` hosts, add `127.0.0.1 thegame.test` to it at the end. Also modify file at 
 
  ![host](host.png)
- 
- or you can user "php artisan serve" ...
+
+ or you can use "php artisan serve" ...
 
  - Start terminal and navigate to project directory.
  - Install Laravel passport by typing `composer require laravel/passport`.
