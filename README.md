@@ -50,3 +50,11 @@ Rest of javascript methods are also located there.
  - This route starts fight `/commenceBattle`. It receives game id.Their js counterpart for activation is `commenceBattle(event)`.
 
 All of these protected routes also need token which is passed automatically from `login` method to global variable `token` from `skripta.js`. 
+
+#### My Notice:
+
+Since a game can have several armies, and if several armies can select same strategy which in turn makes both of them attack one army. By that account there can be more then one winner or at least one loser.
+
+I tried setting counter variable  that counts how many armies still has units and if there are more than one, start loop again. It works partially i.e. ajax call for 50% of the time just times out.
+
+So i decided to leave it as is. Aka, read first paragraph of "My Notice". Since at least, it doesn't time out ...

@@ -18,4 +18,9 @@
 
     </div>
 
+    <div id="invalidCreds"></div>
+
+    <div id="noGames1"></div>
+    <div id="noGames2" class="cent"></div>
+
 @endsection

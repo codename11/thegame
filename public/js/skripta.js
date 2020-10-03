@@ -194,6 +194,11 @@ function goToBattlefield(games){
         document.getElementById("listGames").innerHTML = listGames;
 
     }
+    else{
+        document.getElementById("noGames1").innerHTML = "<div id='toast5' class='toast myToast' data-autohide='true' data-delay='2000'><div class='toast-header'><strong class='mr-auto text-primary'>Notification</strong><strong class='text-muted'></strong><button type='button' class='ml-2 mb-1 close' data-dismiss='toast'>&times;</button></div><div class='toast-body'>There are no Games!</div></div>";
+        $('#toast5').toast('show');
+        document.getElementById("noGames2").innerHTML = "<a href='/api/setupScreen' class='btn btn-outline-success'> Go Back</a>";
+    }
 
 }
 

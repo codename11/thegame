@@ -255,6 +255,7 @@ class GamesController extends Controller
 
             }
             $randArmy = rand(0, $len-1);
+            
             for($i=0;$i<$len;$i++){
 
                 $ifStrategyExists = $armies[$i]->strategy ? $armies[$i]->strategy->strategy : 1;
@@ -329,7 +330,7 @@ class GamesController extends Controller
                     }
 
                 }
-
+                
             }
 
             $winner = "";
@@ -344,7 +345,7 @@ class GamesController extends Controller
             $response = array(
                 "message" => "Attack",
                 "armies" => $armies,
-                "winner" => $winner
+                "winner" => $winner,
             );
             
             return response()->json($response);
